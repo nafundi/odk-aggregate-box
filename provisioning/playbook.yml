@@ -1,0 +1,15 @@
+---
+
+- hosts: all
+  gather_facts: no
+
+  user: ubuntu
+  become: yes
+  become_user: root
+
+  roles:
+    - install-python-simplejson
+    - install-tomcat
+    - install-mysql
+    - install-aggregate
+    - get-ip-address

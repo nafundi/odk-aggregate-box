@@ -1,0 +1,35 @@
+---
+
+- name: set root pass
+  debconf: 
+    name: mysql-server
+    question: mysql-server/root_password
+    value: aggregate
+    vtype: password
+  run_once: yes
+
+- name: confirm root pass
+  debconf: 
+    name: mysql-server
+    question: mysql-server/root_password_again
+    value: aggregate
+    vtype: password
+  run_once: yes
+
+- name: install packages
+  apt: 
+    pkg: '{{ item }}'
+  with_items:
+    - python-mysqldb
+    - mysql-server
+
+- name: copy mysql.cnf
+  copy: 
+    src: mysql.cnf
+    dest: /etc/mysql/conf.d/mysql.cnf
+    mode: 0644
+
+- name: restart mysql
+  service: 
+    name: mysql
+    state: restarted

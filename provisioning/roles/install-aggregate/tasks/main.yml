@@ -1,0 +1,91 @@
+---
+
+- name: set facts
+  set_fact:
+    aggregate_installer: ODK-Aggregate.run
+    aggregate_install_dir: ODK Aggregate
+    aggregate_tmp_dir: /tmp
+    aggregate_webapps_dir: /var/lib/tomcat8/webapps
+
+- name: synchronize files
+  synchronize: 
+    src: '{{ aggregate_installer }}'
+    dest: '{{ aggregate_tmp_dir }}/{{ aggregate_installer }}'
+
+- name: change permissions
+  file:
+    path: '{{ aggregate_tmp_dir }}/{{ aggregate_installer }}'
+    mode: 0755
+
+- name: run installer
+  command: "{{ aggregate_tmp_dir }}/{{ aggregate_installer }} --mode unattended --parent_installdir {{ aggregate_tmp_dir }} --platform mysql --tomcat_http_port {{ aggregate_fqdn_port }} --tomcat_https_port 443 --raw_hostname {{ aggregate_fqdn }} --database_port 3306 --database_hostname 127.0.0.1 --jdbc_username aggregate --jdbc_password aggregate --jdbc_database aggregate --instance_display_name '' --username aggregate --app_id '' --master_slave_app_id '' --jdbc_sqlserver_url '' --jdbc_gae_mysql_instance_name '' --jdbc_gae_mysql_password ''"
+
+- name: create meta-inf folder
+  file:
+    path: '{{ aggregate_tmp_dir }}/{{ aggregate_install_dir }}/META-INF'
+    state: directory
+
+- name: create web-inf folder
+  file:
+    path: '{{ aggregate_tmp_dir }}/{{ aggregate_install_dir }}/WEB-INF/lib'
+    state: directory
+    recurse: yes
+
+- name: extract ODKAggregate-settings.jar
+  command: chdir='{{ aggregate_tmp_dir }}/{{ aggregate_install_dir }}' jar -xf ODKAggregate.war WEB-INF/lib/ODKAggregate-settings.jar
+
+- name: extract security.properties
+  command: chdir='{{ aggregate_tmp_dir }}/{{ aggregate_install_dir }}/WEB-INF/lib/' jar -xf ODKAggregate-settings.jar security.properties
+
+- name: generate uuid
+  shell: uuidgen
+  register: uuid
+
+- name: clean security.properties
+  replace:
+    dest: '{{ aggregate_tmp_dir }}/{{ aggregate_install_dir }}/WEB-INF/lib/security.properties'
+    regexp: '{{ item.regex }}'
+    replace: '{{ item.replace }}'
+  with_items:
+    - { regex: ^security.server.hostname=0.0.0.0, replace: 'security.server.hostname=' }
+    - { regex: ^security.server.realm.realmString=.*, replace: 'security.server.realm.realmString={{ uuid.stdout }}' }
+
+- name: update security.properties
+  command: chdir='{{ aggregate_tmp_dir }}/{{ aggregate_install_dir }}/WEB-INF/lib' jar -uf ODKAggregate-settings.jar security.properties
+
+- name: add ODKAggregate-settings.jar to war
+  command: chdir='{{ aggregate_tmp_dir }}/{{ aggregate_install_dir }}' jar -uf ODKAggregate.war WEB-INF/lib/ODKAggregate-settings.jar
+
+- name: clean root
+  file:
+    path: '{{ item }}'
+    state: absent
+  with_items:
+    - '{{ aggregate_webapps_dir }}/ROOT.war'
+    - '{{ aggregate_webapps_dir }}/ROOT'
+
+- name: move war
+  command: "cp '{{ aggregate_tmp_dir }}/{{ aggregate_install_dir }}/ODKAggregate.war' '{{ aggregate_webapps_dir }}/ROOT.war'"
+
+- name: clean up create_db_and_user.sql
+  replace:
+    dest: '{{ aggregate_tmp_dir }}/{{ aggregate_install_dir }}/create_db_and_user.sql'
+    regexp: '{{ item.regex }}'
+    replace: '{{ item.replace }}'
+  with_items:
+    - { regex: create database `(.*)`, replace: create database if not exists `\1` }
+    - { regex: create user '(.*), replace: create user if not exists '\1 }
+
+- name: run create_db_and_user.sql
+  mysql_db:
+    state: import 
+    name: all
+    target: '{{ aggregate_tmp_dir }}/{{ aggregate_install_dir }}/create_db_and_user.sql'
+    login_host: 127.0.0.1
+    login_user: root
+    login_password: aggregate
+
+- name: clean tmp
+  file:
+    path: '{{ aggregate_tmp_dir }}/{{ aggregate_install_dir }}'
+    state: absent

@@ -1,0 +1,14 @@
+---
+
+- name: get ip
+  shell: hostname -I | cut -d' ' -f2
+  register: ip
+
+- name: print vagrant ip
+  debug: 
+    msg: 'Your server is live at http://{{ ip.stdout }}'
+
+- name: print fqdn ip
+  debug: 
+    msg: 'Your server is probably also live at http://{{ aggregate_fqdn }}:{{ aggregate_fqdn_port }}'
+  when: aggregate_fqdn != "0.0.0.0"

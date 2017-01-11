@@ -1,0 +1,5 @@
+# The fully qualified domain name. Default to 0.0.0.0 to use the server's IP.
+aggregate_fqdn: 0.0.0.0
+
+# The fully qualified domain name's port. Default to 80.
+aggregate_fqdn_port: 80

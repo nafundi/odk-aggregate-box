@@ -1,0 +1,33 @@
+---
+
+- name: install packages
+  apt: 
+    pkg: '{{ item }}'
+  with_items:
+    - default-jdk-headless
+    - tomcat8
+    - libmysql-java
+    - libtcnative-1
+
+- name: create mysql.jar link
+  file: 
+    src: /usr/share/java/mysql.jar
+    dest: /usr/share/tomcat8/lib/mysql.jar
+    state: link
+
+- name: copy server.xml
+  copy: 
+    src: server.xml
+    dest: /etc/tomcat8/server.xml
+    mode: 0644
+
+- name: template tomcat8
+  template: 
+    src: tomcat8.j2
+    dest: /etc/default/tomcat8
+    mode: 0644
+
+- name: restart tomcat8
+  service: 
+    name: tomcat8
+    state: restarted
