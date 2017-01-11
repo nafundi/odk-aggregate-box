@@ -11,9 +11,7 @@ This server will appear like any other machine on your network. This allows you 
 1. Clone this repository.
 1. Run `vagrant up`. Select the interface you wish to use (e.g., Wi-Fi).
 1. After the server is provisioned, vagrant will report the IP of your server.
-	* Aggregate's username is `aggregate` and the password is `aggregate`.
-	* Aggregate's MySQL username is `aggregate` and the password is `aggregate`.
-	* MySQL's root username is `root` and the password is `aggregate`.
+1. Aggregate's username is `aggregate` and the password is `aggregate`.
 
 ## Notes
 * Please don't use this server in production. It is not configured to be robust or safe.
