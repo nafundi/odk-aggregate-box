@@ -1,4 +1,5 @@
-## Overview
+# ODK Aggregate Box
+
 This repo lets developers setup an ODK Aggregate server (Ubuntu 16, Aggregate 1.4.13, Tomcat 8, MySQL 5.7) for testing. 
 
 This server will appear like any other machine on your network. This allows you to connect external devices to test the server. We assume your network hands out IP addresses over DHCP. You can change this behavior in `Vagrantfile`.
