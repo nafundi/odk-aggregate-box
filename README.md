@@ -10,7 +10,7 @@ Please don't use this server in production. It is not configured to be robust or
 1. Install [git lfs](https://git-lfs.github.com) v1.5.3 or later. 
 1. Install [ansible](https://docs.ansible.com/ansible/intro_installation.html) v2.2.0 or later.
 1. Install [vagrant](https://www.vagrantup.com/docs/installation) v1.9.1 or later.
-	1. Install [vagrant-cachier](https://github.com/fgrehm/vagrant-cachier).
+	1. Optional: Install [vagrant-cachier](https://github.com/fgrehm/vagrant-cachier) for faster builds.
 1. Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads) v5.1.12 or later.
 
 ## Provision and configure server
