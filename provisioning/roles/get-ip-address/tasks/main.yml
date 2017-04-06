@@ -6,7 +6,7 @@
 
 - name: print vagrant ip
   debug: 
-    msg: 'Your server is live at http://{{ ip.stdout }}'
+    msg: 'Your server is live at http://{{ ip.stdout }}:{{ aggregate_fqdn_port }}'
 
 - name: print fqdn ip
   debug: 

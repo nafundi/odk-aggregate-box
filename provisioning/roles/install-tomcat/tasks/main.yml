@@ -6,6 +6,7 @@
   with_items:
     - default-jdk-headless
     - tomcat8
+    - tomcat8-admin
     - libmysql-java
     - libtcnative-1
 
@@ -15,16 +16,22 @@
     dest: /usr/share/tomcat8/lib/mysql.jar
     state: link
 
-- name: copy server.xml
-  copy: 
-    src: server.xml
+- name: template server.xml
+  template: 
+    src: server.xml.j2
     dest: /etc/tomcat8/server.xml
     mode: 0644
 
-- name: template tomcat8
-  template: 
-    src: tomcat8.j2
+- name: copy tomcat8
+  copy: 
+    src: tomcat8
     dest: /etc/default/tomcat8
+    mode: 0644
+
+- name: copy tomcat-users.xml
+  copy: 
+    src: tomcat-users.xml
+    dest: /etc/tomcat8/tomcat-users.xml
     mode: 0644
 
 - name: restart tomcat8

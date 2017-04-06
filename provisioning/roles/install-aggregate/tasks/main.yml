@@ -89,3 +89,8 @@
   file:
     path: '{{ aggregate_tmp_dir }}/{{ aggregate_install_dir }}'
     state: absent
+
+- name: restart tomcat8
+  service: 
+    name: tomcat8
+    state: restarted
